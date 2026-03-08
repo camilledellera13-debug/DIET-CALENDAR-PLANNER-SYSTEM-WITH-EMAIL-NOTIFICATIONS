@@ -1,68 +1,73 @@
-# DIET-CALENDAR-PLANNER-SYSTEM-WITH-EMAIL-NOTIFICATIONS
-Description
+DIET-CALENDAR-PLANNER-SYSTEM-WITH-EMAIL-NOTIFICATIONS
+
+## Description
 
 A web-based diet calendar planner system that helps users manage their daily diet schedule and meal plans. The system allows users to plan meals using a calendar interface and receive email notifications as reminders for their diet schedule.
 
-Objectives
+## Objectives
 
-To help users organize their daily diet plans
+- To help users organize their daily diet plans
 
-To provide a calendar-based system for meal scheduling
+- To provide a calendar-based system for meal scheduling
 
-To allow users to track their diet routines easily
+- To allow users to track their diet routines easily
 
-To send email notifications as reminders for planned meals or diet schedules
+- To send email notifications as reminders for planned meals or diet schedules
 
-Features
+## Features
 
-Create, edit, and delete diet plans
+- Create, edit, and delete diet plans
 
-View meal schedules using a calendar interface
+- View meal schedules using a calendar interface
 
-Set daily meal plans such as breakfast, lunch, and dinner
+- Set daily meal plans such as breakfast, lunch, and dinner
 
-Receive email notifications for scheduled diet plans
+- Receive email notifications for scheduled diet plans
 
-Simple and user-friendly interface
+- Simple and user-friendly interface
 
-Easy management of diet schedules
+- Easy management of diet schedules
 
-Technologies Used
+## Technologies Used
 
-HTML
+- HTML
 
-CSS
+- CSS
 
-Python
+- Python
 
-MySQL
+- MySQL
 
-GitHub
+- GitHub
 
-Project Structure
+## Project Structure
 
 The project consists of several components including the frontend interface, backend logic, and database for storing diet plans and schedules.
 
-How to Run the Project
+## How to Run the Project
 
-Clone or download the repository from GitHub
+1. Clone or download the repository from GitHub
 
-Open the project folder on your computer
+2. Open the project folder on your computer
 
-Import the database using the schema.sql file
+3. Import the database using the schema.sql file
 
-Run the project using a local server such as XAMPP
+4. Run the project using a local server such as XAMPP
 
-Open the project in a web browser to access the system
+5. Open the project in a web browser to access the system
 
-Future Improvements
+## Future Improvements
 
-User authentication (login and registration)
+- User authentication (login and registration)
 
-Advanced email reminder customization
+- Advanced email reminder customization
 
-Diet progress tracking and reports
+- Diet progress tracking and reports
 
-Export diet plans to PDF or Excel
+- Export diet plans to PDF or Excel
 
-Mobile-friendly and responsive design
+- Mobile-friendly and responsive design
+
+## Author
+
+Camille
