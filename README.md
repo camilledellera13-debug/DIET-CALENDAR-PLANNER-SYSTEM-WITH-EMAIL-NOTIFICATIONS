@@ -43,4 +43,4 @@ Push notifications in addition to email
 Mobile-responsive design
 Integration with fitness or health tracking apps
 
-DCPS-4 Ticket 3: Create Database Structure
+DCPS-8 Ticket 8: UI Improvements
