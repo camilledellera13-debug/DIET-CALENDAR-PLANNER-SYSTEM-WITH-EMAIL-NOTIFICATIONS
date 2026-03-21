@@ -23,7 +23,7 @@ A web-based diet calendar planner system that helps users plan meals, track nutr
 ## Technologies Used
 - HTML
 - CSS
-- Python
+- PHP
 - MySQL
 - GitHub
 
