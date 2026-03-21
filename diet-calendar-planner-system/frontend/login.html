@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Diet Planner</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h1>🍽️ Diet Planner</h1>
+            <h2>Login to Your Account</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button type="submit" class="btn-primary full-width">Login</button>
+            </form>
+            <div class="auth-links">
+                <a href="#" id="showRegister">Create New Account</a>
+            </div>
+            
+            <div id="registerForm" class="hidden">
+                <h3>Create Account</h3>
+                <form id="registerFormSubmit">
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                    <input type="password" id="regPassword" placeholder="Password" required>
+                    <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required>
+                    <button type="submit" class="btn-primary full-width">Register</button>
+                </form>
+                <a href="#" id="showLogin">Back to Login</a>
+            </div>
+        </div>
+    </div>
+    <script src="../js/auth.js"></script>
+</body>
+</html>
