@@ -42,3 +42,6 @@ A web-based diet calendar planner system that helps users plan meals, track nutr
 Push notifications in addition to email
 Mobile-responsive design
 Integration with fitness or health tracking apps
+
+
+DCPS-3 Ticket 2: Design UI in Figma
