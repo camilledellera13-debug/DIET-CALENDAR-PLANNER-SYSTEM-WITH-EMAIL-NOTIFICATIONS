@@ -1,46 +1,58 @@
 # Diet Calendar Planner System with Email Notifications
-Description
 
-A web-based diet calendar planner system that helps users plan meals, track nutrition, manage food expenses, and receive email notifications for scheduled diet activities.
+## Description
+
+A web-based diet calendar planner system that allows users to register and log in, input their height, current weight, and target weight, and receive automatically generated meal plans. The system also suggests activities such as jogging and sends email notifications for meal and activity reminders.
 
 ## Objectives
-- To help users organize and maintain a healthy diet plan
-- To provide a calendar-based meal planning system
-- To track daily nutrition and food expenses
-- To send email notifications for meal schedules and reminders
-- To automatically calculate total nutrition intake and remaining targets
+
+* To help users maintain a healthy and personalized diet plan
+* To provide a calendar-based meal planning system
+* To generate diet plans based on user’s height, current weight, and target weight
+* To suggest activities such as jogging based on user goals
+* To send email notifications for meals and scheduled activities
 
 ## Features
-1. Create, edit, and delete meal plans
-2. View meal plans using a calendar interface
-3. Set daily or weekly nutrition goals
-4. Add and manage meals with calorie and nutrient details
-5. Track food budget and expenses
-6. Automatic calculation of total calories and remaining nutrition goals
-7. Email notifications for meal reminders and diet schedules
-8.Simple and easy-to-use interface
+
+1. User registration and login system
+2. Input of height, current weight, and target weight after login
+3. Automatic generation of meal plans based on user goal (weight loss or weight gain)
+4. Activity suggestions such as jogging for weight loss
+5. Calendar view of daily meals and activities
+6. View detailed meal information
+7. Email notifications for meal reminders and activity schedules
+8. Simple and user-friendly interface
 
 ## Technologies Used
-- HTML
-- CSS
-- PHP
-- MySQL
-- GitHub
+
+* HTML
+* CSS
+* PHP
+* MySQL
+* GitHub
 
 ## Project Structure
-1. How to Run the Project
-2. Clone or download the repository from GitHub
-3. Open the project folder on your computer
-4. Import the database using the schema.sql file
-5. Configure email settings (SMTP) in the project files
-6. Run the project using a local server such as XAMPP
-7. Open the project in a web browser
-## Future Improvements
-- User authentication (login and registration)
-- Advanced nutrition tracking (vitamins, minerals, etc.)
-- Export diet reports (PDF or Excel)
-Push notifications in addition to email
-Mobile-responsive design
-Integration with fitness or health tracking apps
 
-DCPS-4 Ticket 3: Create Database Structure
+* frontend/ → User interface files
+* backend/ → Server-side logic
+* design/ → Figma designs and prototype
+* docs/ → Documentation files
+* Codebase/ → Initial or working code files
+
+## How to Run the Project
+
+1. Clone or download the repository from GitHub
+2. Open the project folder on your computer
+3. Import the database using the schema.sql file
+4. Configure email settings (SMTP) in the project files
+5. Run the project using a local server such as XAMPP
+6. Open the project in a web browser
+
+## Future Improvements
+
+* More accurate diet recommendations
+* Advanced activity tracking
+* Mobile-responsive design
+* Push notifications in addition to email
+* Integration with fitness or health tracking apps
+
