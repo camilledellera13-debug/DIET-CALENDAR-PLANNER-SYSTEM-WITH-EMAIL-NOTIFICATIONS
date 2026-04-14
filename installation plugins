@@ -1,0 +1,3 @@
+# for flask in pycharm
+pip install Flask flask-cors
+
