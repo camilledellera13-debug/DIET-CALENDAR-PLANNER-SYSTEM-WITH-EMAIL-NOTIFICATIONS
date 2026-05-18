@@ -50,6 +50,7 @@ A web-based diet calendar planner system that allows users to register and log i
 
 ## Future Improvements
 
+DIET-4 Ticket 4: Calendar Display
 * More accurate diet recommendations
 * Advanced activity tracking
 * Mobile-responsive design
