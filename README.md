@@ -50,6 +50,8 @@ A web-based diet calendar planner system that allows users to register and log i
 
 ## Future Improvements
 
+DIET-3 Ticket 3: Auto Meal Generator
+
 * More accurate diet recommendations
 * Advanced activity tracking
 * Mobile-responsive design
