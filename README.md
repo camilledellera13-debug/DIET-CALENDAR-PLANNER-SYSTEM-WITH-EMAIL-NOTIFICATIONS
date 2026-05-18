@@ -56,3 +56,4 @@ A web-based diet calendar planner system that allows users to register and log i
 * Push notifications in addition to email
 * Integration with fitness or health tracking apps
 
+DIET-7 Ticket 7: Dashboard Overview
