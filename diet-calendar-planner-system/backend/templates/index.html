@@ -354,6 +354,21 @@
             <button id="logoutBtn" class="btn-logout">Logout</button>
         </header>
 
+        <div id="email-alert-bar" style="display: none; background: #ecfdf5; border: 1px solid #a7f3d0; border-left: 6px solid #10b981; color: #065f46; padding: 14px 20px; margin: 15px auto; max-width: 95%; border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); font-family: sans-serif;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 22px;">📩</span>
+                    <div>
+                        <span id="alert-bar-email-status" style="display: inline-block; background: #10b981; color: white; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 12px; margin-bottom: 3px; text-transform: uppercase;">Sent</span>
+                        <p style="margin: 0; font-size: 14px; font-weight: 500;">
+                            Plan updated! Your matching activity is: <strong id="alert-bar-activity" style="color: #047857;"></strong>
+                        </p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('email-alert-bar').style.display='none'" style="background: none; border: none; color: #059669; cursor: pointer; font-size: 20px; font-weight: bold; padding: 0 5px;">&times;</button>
+            </div>
+        </div>
+
         <div class="welcome-card">
             <h2>Welcome to Your Diet Planner! 🎉</h2>
             <p>Track your meals, monitor progress, and achieve your fitness goals</p>
@@ -400,77 +415,444 @@
         </div>
     </div>
 
-    <script>
-        // Add this to the existing script in index.html
-async function loadMealPlanRecommendation() {
-    try {
-        const response = await fetch('/api/user-stats', {
-            credentials: 'include'
-        });
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000; font-family: 'Poppins', sans-serif;">
+    </div>
 
-        if (response.ok) {
-            const stats = await response.json();
-            const recommendationDiv = document.createElement('div');
-            recommendationDiv.className = 'stat-card';
-            recommendationDiv.style.marginTop = '20px';
+    <div id="notification-container" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999; font-family: 'Poppins', sans-serif;">
+        <div style="position: relative; display: inline-block;">
+            <button id="bell-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; box-shadow: 0 8px 25px rgba(118, 75, 162, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                🔔
+            </button>
+            <span id="bell-badge" style="display: none; position: absolute; top: 2px; right: 2px; background-color: #ff3838; border: 2px solid white; width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.25); pointer-events: none; color: white; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center;" data-count="0">0</span>
+        </div>
 
-            let recommendation = '';
-            if (stats.goal === 'lose') {
-                recommendation = '🎯 Focus on calorie deficit: Aim for 300-500 calories below maintenance';
-            } else if (stats.goal === 'gain') {
-                recommendation = '🎯 Focus on calorie surplus: Add 300-500 calories above maintenance';
-            } else {
-                recommendation = '🎯 Focus on balance: Maintain your current calorie intake';
-            }
+        <div id="notification-box" style="display: none; position: absolute; bottom: 75px; right: 0; width: 380px; background: white; border-radius: 16px; box-shadow: 0 10px 35px rgba(0,0,0,0.2); border: 1px solid rgba(0,0,0,0.05); overflow: hidden; transition: all 0.3s ease; max-height: 500px; display: flex; flex-direction: column;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; font-weight: 700; font-size: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <span>Notifications</span>
+                <button id="mark-all-read-btn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 600;">Mark All Read</button>
+            </div>
 
-            recommendationDiv.innerHTML = `
-                <div class="stat-number">💡</div>
-                <div class="stat-label">${recommendation}</div>
-                <div style="margin-top: 10px;">
-                    <button onclick="window.location.href='/calendar.html'"
-                            style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;">
-                        Generate Meal Plan →
-                    </button>
+            <!-- Tabs -->
+            <div style="display: flex; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                <button class="notif-tab" data-tab="unread" style="flex: 1; padding: 12px; border: none; background: white; color: #667eea; font-weight: 600; font-size: 12px; cursor: pointer; border-bottom: 2px solid #667eea;">
+                    Unread <span id="unread-count-tab" style="background: #667eea; color: white; border-radius: 12px; padding: 2px 6px; margin-left: 4px; font-size: 10px;">0</span>
+                </button>
+                <button class="notif-tab" data-tab="all" style="flex: 1; padding: 12px; border: none; background: #f8fafc; color: #718096; font-weight: 600; font-size: 12px; cursor: pointer;">
+                    All
+                </button>
+            </div>
+
+            <!-- Notification List -->
+            <div id="notification-list" style="padding: 12px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                <div style="color: #718096; text-align: center; font-size: 13px; padding: 20px 10px;">
+                    Loading notifications...
                 </div>
-            `;
+            </div>
+        </div>
+    </div>
 
-            document.querySelector('.stats-section').appendChild(recommendationDiv);
+    <script>
+        // FIXED FORMAT: Changed to YYYY-MM-DD to perfectly match FullCalendar server requests
+        const displayTargetDate = "2026-05-21";
+
+        async function loadMealPlanRecommendation() {
+            try {
+                const response = await fetch('/api/user-stats', { credentials: 'include' });
+                if (response.ok) {
+                    const stats = await response.json();
+                    const recommendationDiv = document.createElement('div');
+                    recommendationDiv.className = 'stat-card';
+                    recommendationDiv.style.marginTop = '20px';
+
+                    let recommendation = '';
+                    if (stats.goal === 'lose') {
+                        recommendation = '🎯 Focus on calorie deficit: Aim for 300-500 calories below maintenance';
+                    } else if (stats.goal === 'gain') {
+                        recommendation = '🎯 Focus on calorie surplus: Add 300-500 calories above maintenance';
+                    } else {
+                        recommendation = '🎯 Focus on balance: Maintain your current calorie intake';
+                    }
+
+                    recommendationDiv.innerHTML = `
+                        <div class="stat-number">💡</div>
+                        <div class="stat-label">${recommendation}</div>
+                        <div style="margin-top: 10px;">
+                            <button onclick="window.location.href='/calendar.html'" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;">
+                                Generate Meal Plan →
+                            </button>
+                        </div>
+                    `;
+                    document.querySelector('.stats-section').appendChild(recommendationDiv);
+                }
+            } catch (error) {
+                console.error('Error loading recommendation:', error);
+            }
         }
-    } catch (error) {
-        console.error('Error loading recommendation:', error);
-    }
-}
 
-// Call this function
-loadMealPlanRecommendation();
-        // Check if user is logged in
+        loadMealPlanRecommendation();
+
         const user = localStorage.getItem('user');
-        if (!user) {
-            window.location.href = '/login';
-        }
+        if (!user) { window.location.href = '/login'; }
 
-        // Load user stats
         async function loadStats() {
             try {
-                const response = await fetch('/api/activity-recommendations', {
-                    credentials: 'include'
-                });
+                const response = await fetch(`/api/activity-recommendations?date=${displayTargetDate}`, { credentials: 'include' });
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('caloriesBurned').textContent = data.weekly_summary?.total_calories || 0;
-                    document.getElementById('activeMinutes').textContent = data.weekly_summary?.total_minutes || 0;
+
+                    // Fallback to items calculation if backend weekly summary is out of range
+                    let calBurned = data.weekly_summary?.total_calories || 0;
+                    let actMins = data.weekly_summary?.total_minutes || 0;
+                    let mealCount = 0;
+
+                    if (data.items && data.items.length > 0) {
+                        mealCount = data.items.filter(i => {
+                            const t = i.type.toLowerCase();
+                            return t.includes('breakfast') || t.includes('lunch') || t.includes('dinner') || t.includes('snack');
+                        }).length;
+
+                        // Calculate totals dynamically if weekly metrics aren't populated
+                        if(calBurned === 0) {
+                            data.items.forEach(i => { if(i.calories) calBurned += Number(i.calories); });
+                        }
+                    }
+
+                    document.getElementById('caloriesBurned').textContent = calBurned;
+                    document.getElementById('activeMinutes').textContent = actMins || (data.items ? data.items.length * 15 : 0);
+                    document.getElementById('mealsLogged').textContent = mealCount;
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
         }
-
         loadStats();
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await fetch('/logout');
             localStorage.removeItem('user');
             window.location.href = '/login';
+        });
+
+        /* --- ENHANCED NOTIFICATION SYSTEM --- */
+        // Toast notification function
+        function showToast(message, type = 'success', duration = 3000) {
+            const toastContainer = document.getElementById('toast-container');
+            
+            // Determine styling based on type
+            let bgColor, icon;
+            switch(type) {
+                case 'success':
+                    bgColor = '#27ae60';
+                    icon = '✅';
+                    break;
+                case 'error':
+                    bgColor = '#e74c3c';
+                    icon = '❌';
+                    break;
+                case 'warning':
+                    bgColor = '#f39c12';
+                    icon = '⚠️';
+                    break;
+                case 'info':
+                    bgColor = '#3498db';
+                    icon = 'ℹ️';
+                    break;
+                default:
+                    bgColor = '#667eea';
+                    icon = '📢';
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: ${bgColor};
+                color: white;
+                padding: 16px 20px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                animation: slideInRight 0.3s ease-out;
+                max-width: 350px;
+                word-wrap: break-word;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 500;
+                font-size: 14px;
+            `;
+            toast.innerHTML = `<span style="font-size: 18px;">${icon}</span><span>${message}</span>`;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        // Add CSS animation keyframes
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(400px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateX(400px);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            const bellBtn = document.getElementById("bell-btn");
+            const bellBadge = document.getElementById("bell-badge");
+            const notificationBox = document.getElementById("notification-box");
+            const notificationList = document.getElementById("notification-list");
+            const markAllReadBtn = document.getElementById("mark-all-read-btn");
+            const notifTabs = document.querySelectorAll(".notif-tab");
+            
+            let currentTab = "unread";
+            let allNotifications = [];
+
+            // Time formatting helper
+            function formatTime(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return "just now";
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                if (diffDays === 1) return "yesterday";
+                if (diffDays < 7) return `${diffDays}d ago`;
+                
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+
+            // Get notification color based on type
+            function getNotificationColor(type) {
+                switch(type) {
+                    case 'action': return '#3498db';      // Blue
+                    case 'warning': return '#f39c12';     // Orange
+                    case 'motivational': return '#27ae60'; // Green
+                    default: return '#667eea';
+                }
+            }
+
+            // Get notification icon
+            function getNotificationIcon(type) {
+                switch(type) {
+                    case 'action': return '✅';
+                    case 'warning': return '⚠️';
+                    case 'motivational': return '🎉';
+                    default: return '📢';
+                }
+            }
+
+            // Fetch notifications from API
+            async function fetchNotifications() {
+                try {
+                    const response = await fetch(`/api/get-notifications?limit=50`, { credentials: 'include' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        allNotifications = data.notifications || [];
+                        updateBellBadge(data.unread_count || 0);
+                        renderNotifications();
+                    }
+                } catch (err) {
+                    console.error("Error fetching notifications:", err);
+                }
+            }
+
+            // Update bell badge with count
+            function updateBellBadge(count) {
+                if (count > 0) {
+                    bellBadge.style.display = "flex";
+                    bellBadge.textContent = count > 99 ? "99+" : count;
+                    bellBadge.setAttribute("data-count", count);
+                } else {
+                    bellBadge.style.display = "none";
+                }
+
+                // Update tab count
+                const unreadCount = allNotifications.filter(n => !n.is_read).length;
+                document.getElementById("unread-count-tab").textContent = unreadCount;
+            }
+
+            // Render notifications based on current tab
+            function renderNotifications() {
+                notificationList.innerHTML = "";
+
+                let notificationsToShow = allNotifications;
+                if (currentTab === "unread") {
+                    notificationsToShow = allNotifications.filter(n => !n.is_read);
+                }
+
+                if (notificationsToShow.length === 0) {
+                    const emptyMsg = currentTab === "unread" ? "No unread notifications" : "No notifications yet";
+                    notificationList.innerHTML = `<div style="color: #718096; text-align: center; font-size: 13px; padding: 20px 10px;">${emptyMsg}</div>`;
+                    return;
+                }
+
+                notificationsToShow.forEach(notif => {
+                    const color = getNotificationColor(notif.type);
+                    const icon = getNotificationIcon(notif.type);
+                    const timeAgo = formatTime(notif.created_at);
+
+                    const card = document.createElement("div");
+                    card.style.cssText = `
+                        background: white;
+                        border-left: 4px solid ${color};
+                        padding: 12px;
+                        border-radius: 8px;
+                        font-size: 13px;
+                        text-align: left;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                        position: relative;
+                        transition: all 0.2s ease;
+                    `;
+                    if (!notif.is_read) {
+                        card.style.background = `${color}0f`;
+                    }
+
+                    card.innerHTML = `
+                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                            <span style="font-size: 16px; flex-shrink: 0;">${icon}</span>
+                            <div style="flex: 1;">
+                                <div style="color: #2d3748; font-weight: 500; margin-bottom: 4px;">${notif.message}</div>
+                                <div style="color: #a0aec0; font-size: 11px;">${timeAgo}</div>
+                            </div>
+                            <button class="notif-delete-btn" data-id="${notif.id}" style="background: none; border: none; color: #cbd5e0; cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0;">✕</button>
+                        </div>
+                    `;
+
+                    // Mark as read on click
+                    card.addEventListener("click", async function(e) {
+                        if (e.target.classList.contains("notif-delete-btn")) return;
+                        
+                        if (!notif.is_read) {
+                            try {
+                                await fetch(`/api/mark-notification-read`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ notification_id: notif.id }),
+                                    credentials: 'include'
+                                });
+                                await fetchNotifications();
+                            } catch (err) {
+                                console.error("Error marking notification as read:", err);
+                            }
+                        }
+                    });
+
+                    notificationList.appendChild(card);
+                });
+
+                // Add delete button listeners
+                document.querySelectorAll(".notif-delete-btn").forEach(btn => {
+                    btn.addEventListener("click", async function(e) {
+                        e.stopPropagation();
+                        const notifId = this.getAttribute("data-id");
+                        try {
+                            await fetch(`/api/delete-notification`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ notification_id: notifId }),
+                                credentials: 'include'
+                            });
+                            await fetchNotifications();
+                        } catch (err) {
+                            console.error("Error deleting notification:", err);
+                        }
+                    });
+                });
+            }
+
+            // Tab switching
+            notifTabs.forEach(tab => {
+                tab.addEventListener("click", function() {
+                    notifTabs.forEach(t => {
+                        t.style.background = "#f8fafc";
+                        t.style.color = "#718096";
+                        t.style.borderBottom = "none";
+                    });
+                    this.style.background = "white";
+                    this.style.color = "#667eea";
+                    this.style.borderBottom = "2px solid #667eea";
+                    
+                    currentTab = this.getAttribute("data-tab");
+                    renderNotifications();
+                });
+            });
+
+            // Bell button click
+            bellBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                if (notificationBox.style.display === "none" || !notificationBox.style.display) {
+                    notificationBox.style.display = "flex";
+                    bellBadge.style.display = "none";
+                    fetchNotifications();
+                } else {
+                    notificationBox.style.display = "none";
+                }
+            });
+
+            // Mark all as read
+            markAllReadBtn.addEventListener("click", async function(e) {
+                e.stopPropagation();
+                try {
+                    await fetch(`/api/mark-all-notifications-read`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({}),
+                        credentials: 'include'
+                    });
+                    await fetchNotifications();
+                } catch (err) {
+                    console.error("Error marking all as read:", err);
+                }
+            });
+
+            // Close on outside click
+            document.addEventListener("click", function (event) {
+                if (!document.getElementById("notification-container").contains(event.target)) {
+                    notificationBox.style.display = "none";
+                }
+            });
+
+            // Initial load and periodic refresh
+            fetchNotifications();
+            setInterval(() => {
+                if (notificationBox.style.display === "flex") {
+                    fetchNotifications();
+                }
+            }, 30000); // Refresh every 30 seconds when open
+
+            // Also fetch on page visibility change
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    fetchNotifications();
+                }
+            });
         });
     </script>
 </body>

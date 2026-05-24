@@ -33,6 +33,28 @@
             to { opacity: 1; }
         }
 
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(400px);
+            }
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -385,7 +407,7 @@ grid.innerHTML = data.recommendations.map((activity, index) => `
     const duration = parseInt(durationInput.value);
 
     if (!duration || duration < 1 || duration > 180) {
-        alert('Please enter a valid duration (1-180 minutes)');
+        showToast('Please enter a valid duration (1-180 minutes)', 'warning');
         return;
     }
 
@@ -413,18 +435,18 @@ grid.innerHTML = data.recommendations.map((activity, index) => `
         const data = await response.json();
 
         if (response.ok && data.success) {
-            showSuccessMessage(`✅ Logged ${duration} minutes of activity! 🔥 ${caloriesBurned} calories burned`);
+            showToast(`🏃 ${duration} min logged! 🔥 ${caloriesBurned} cal burned`, 'success', 4000);
             durationInput.value = '';
             toggleLogForm(activityId);
             // Reload recommendations to update weekly summary
             setTimeout(() => loadRecommendations(), 1000);
         } else {
             console.error('Server response:', data);
-            alert('Failed to log activity: ' + (data.error || 'Please try again'));
+            showToast('Failed to log activity: ' + (data.error || 'Try again'), 'error');
         }
     } catch (error) {
         console.error('Error logging activity:', error);
-        alert('Error logging activity: ' + error.message);
+        showToast('Error logging activity: ' + error.message, 'error');
     } finally {
         button.textContent = originalText;
         button.disabled = false;
@@ -437,6 +459,70 @@ grid.innerHTML = data.recommendations.map((activity, index) => `
             msgDiv.textContent = message;
             document.body.appendChild(msgDiv);
             setTimeout(() => msgDiv.remove(), 3000);
+        }
+        
+        // Toast notification function (shared across pages)
+        function showToast(message, type = 'success', duration = 3000) {
+            // Get or create toast container
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; font-family: Poppins, sans-serif;';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Determine styling based on type
+            let bgColor, icon;
+            switch(type) {
+                case 'success':
+                    bgColor = '#27ae60';
+                    icon = '✅';
+                    break;
+                case 'error':
+                    bgColor = '#e74c3c';
+                    icon = '❌';
+                    break;
+                case 'warning':
+                    bgColor = '#f39c12';
+                    icon = '⚠️';
+                    break;
+                case 'info':
+                    bgColor = '#3498db';
+                    icon = 'ℹ️';
+                    break;
+                default:
+                    bgColor = '#667eea';
+                    icon = '📢';
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: ${bgColor};
+                color: white;
+                padding: 16px 20px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                animation: slideInRight 0.3s ease-out;
+                max-width: 350px;
+                word-wrap: break-word;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 500;
+                font-size: 14px;
+            `;
+            toast.innerHTML = `<span style="font-size: 18px;">${icon}</span><span>${message}</span>`;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
         }
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {

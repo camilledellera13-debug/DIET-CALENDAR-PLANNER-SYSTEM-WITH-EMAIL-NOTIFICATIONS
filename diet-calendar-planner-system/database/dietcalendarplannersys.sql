@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 15, 2026 at 01:54 PM
+-- Generation Time: May 22, 2026 at 05:15 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -87,7 +87,10 @@ INSERT INTO `dietplan` (`planid`, `userid`, `planname`, `description`, `startdat
 (9, 8, 'My Diet Plan', 'Personalized diet plan', '2026-05-12', '2026-08-12', '2026-05-12 03:09:50'),
 (10, 9, 'My Diet Plan', 'Personalized diet plan', '2026-05-12', '2026-08-12', '2026-05-12 03:45:18'),
 (11, 10, 'My Diet Plan', 'Personalized diet plan', '2026-05-13', '2026-08-13', '2026-05-13 04:57:39'),
-(12, 10, 'AI Generated Plan', 'Auto-generated meal plan from AI', '2026-05-12', '2026-06-12', '2026-05-13 05:12:07');
+(12, 10, 'AI Generated Plan', 'Auto-generated meal plan from AI', '2026-05-12', '2026-06-12', '2026-05-13 05:12:07'),
+(13, 11, 'My Diet Plan', 'Personalized diet plan', '2026-05-21', '2026-08-21', '2026-05-21 14:06:22'),
+(14, 11, 'My Diet Plan', 'Personalized plan', '2026-05-13', '2026-08-13', '2026-05-21 14:10:35'),
+(15, 12, 'My Diet Plan', 'Personalized plan', '2026-05-21', '2026-08-21', '2026-05-21 15:25:22');
 
 -- --------------------------------------------------------
 
@@ -134,7 +137,10 @@ INSERT INTO `fooditem` (`foodid`, `foodname`, `calories`, `protein`, `carbs`, `f
 (23, 'Peanut Butter', 1.00, 0.00, 0.00, 0.00),
 (24, 'Almonds', 10.00, 0.00, 0.00, 0.00),
 (25, 'Whole Wheat Bread', 2.00, 0.00, 0.00, 0.00),
-(26, 'Scrambled Eggs', 2.00, 0.00, 0.00, 0.00);
+(26, 'Scrambled Eggs', 2.00, 0.00, 0.00, 0.00),
+(27, 'Chicken', 200.00, 0.00, 0.00, 0.00),
+(28, 'chickin', 200.00, 0.00, 0.00, 0.00),
+(29, 'Pancakes with syrup', 350.00, 0.00, 0.00, 0.00);
 
 -- --------------------------------------------------------
 
@@ -191,7 +197,11 @@ INSERT INTO `meal` (`mealid`, `planid`, `mealtype`, `mealdate`, `totalcalories`,
 (33, 5, 'Breakfast', '2026-04-18', 650.00, '2026-04-05 12:46:34'),
 (34, 5, 'Lunch', '2026-04-18', 750.00, '2026-04-05 12:46:34'),
 (35, 5, 'Dinner', '2026-04-18', 800.00, '2026-04-05 12:46:34'),
-(36, 5, 'Snack', '2026-04-18', 300.00, '2026-04-05 12:46:34');
+(36, 5, 'Snack', '2026-04-18', 300.00, '2026-04-05 12:46:34'),
+(367, 13, 'Dinner', '2026-05-21', 200.00, '2026-05-21 14:46:51'),
+(368, 13, 'Dinner', '2026-05-21', 200.00, '2026-05-21 14:46:55'),
+(369, 13, 'Breakfast', '2026-05-21', 200.00, '2026-05-21 14:50:35'),
+(370, 15, 'Breakfast', '2026-05-21', 350.00, '2026-05-21 15:25:22');
 
 -- --------------------------------------------------------
 
@@ -236,7 +246,36 @@ INSERT INTO `mealfood` (`mealid`, `foodid`, `quantity`, `servingsize`) VALUES
 (27, 8, 1.50, '1.5 medium'),
 (27, 15, 1.00, '1 tbsp'),
 (28, 6, 1.00, '1 cup'),
-(28, 13, 2.00, '20 almonds');
+(28, 13, 2.00, '20 almonds'),
+(367, 27, 1.00, NULL),
+(368, 27, 1.00, NULL),
+(369, 28, 1.00, NULL),
+(370, 29, 1.00, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `type` enum('action','warning','motivational') DEFAULT 'action',
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `message`, `type`, `is_read`, `created_at`) VALUES
+(1, 12, '???? Activity logged: Brisk Walking (30 min, 165 cal burned)', 'action', 1, '2026-05-21 15:24:16'),
+(2, 12, '????️ Meal logged: breakfast - Pancakes with syrup (350 cal)', 'action', 1, '2026-05-21 15:25:22'),
+(3, 11, '????‍♀️ Activity logged: Stretching (4 min, 10 cal burned)', 'action', 1, '2026-05-21 15:29:10'),
+(4, 11, '????‍♀️ Activity logged: Stretching (6 min, 15 cal burned)', 'action', 1, '2026-05-21 15:29:30');
 
 -- --------------------------------------------------------
 
@@ -306,7 +345,9 @@ INSERT INTO `user` (`userid`, `name`, `email`, `password`, `age`, `gender`, `hei
 (6, 'joshtravieza', 'travz1231@gmail.com', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 21, NULL, 157.00, 52.00, 'maintain', '2026-05-11 03:19:07'),
 (8, 'joshtravieza', 'travz@gmail.com', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 21, NULL, 157.00, 52.00, 'maintain', '2026-05-12 03:09:50'),
 (9, 'yuanaa', 'yuana12@gmail.com', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5', 18, NULL, 142.00, 45.00, 'gain', '2026-05-12 03:45:18'),
-(10, 'qwerty qwerty', 'qwerty@gmail.com', '65e84be33532fb784c48129675f9eff3a682b27168c0ea744b2cf58ee02337c5', 19, NULL, 153.00, 50.00, 'gain', '2026-05-13 04:57:39');
+(10, 'qwerty qwerty', 'qwerty@gmail.com', '65e84be33532fb784c48129675f9eff3a682b27168c0ea744b2cf58ee02337c5', 19, NULL, 153.00, 50.00, 'gain', '2026-05-13 04:57:39'),
+(11, 'Lee Carlos Go', 'leecarlosgo123@gmail.com', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', 20, NULL, 161.00, 58.00, 'gain', '2026-05-21 14:06:22'),
+(12, 'Test User', 'testuser@test.com', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', NULL, NULL, NULL, NULL, 'maintain', '2026-05-21 15:23:24');
 
 -- --------------------------------------------------------
 
@@ -331,7 +372,15 @@ CREATE TABLE `user_activities` (
 
 INSERT INTO `user_activities` (`id`, `user_id`, `activity_id`, `duration_minutes`, `date`, `calories_burned`, `notes`, `created_at`) VALUES
 (1, 5, 3, 5, '2026-04-28', 72, '', '2026-04-28 03:00:48'),
-(4, 8, 3, 1, '2026-05-12', 14, 'mjkjhkl', '2026-05-12 03:12:18');
+(4, 8, 3, 1, '2026-05-12', 14, 'mjkjhkl', '2026-05-12 03:12:18'),
+(13, 11, 12, 30, '2026-05-21', 285, '', '2026-05-21 14:47:10'),
+(14, 11, 10, 4, '2026-05-21', 10, '', '2026-05-21 14:50:13'),
+(15, 11, 3, 20, '2026-05-21', 290, '', '2026-05-21 14:50:45'),
+(16, 11, 10, 5, '2026-05-21', 12, '', '2026-05-21 15:15:30'),
+(17, 12, 5, 30, '2026-05-21', 165, '', '2026-05-21 15:24:16'),
+(18, 11, 10, 4, '2026-05-21', 10, '', '2026-05-21 15:29:10'),
+(19, 11, 10, 6, '2026-05-21', 15, '', '2026-05-21 15:29:30'),
+(20, 11, 3, 34, '2026-05-21', 493, '', '2026-05-21 15:29:41');
 
 -- --------------------------------------------------------
 
@@ -416,6 +465,13 @@ ALTER TABLE `mealfood`
   ADD KEY `foodid` (`foodid`);
 
 --
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `progresslog`
 --
 ALTER TABLE `progresslog`
@@ -468,19 +524,25 @@ ALTER TABLE `activities`
 -- AUTO_INCREMENT for table `dietplan`
 --
 ALTER TABLE `dietplan`
-  MODIFY `planid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `planid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `fooditem`
 --
 ALTER TABLE `fooditem`
-  MODIFY `foodid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `foodid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `meal`
 --
 ALTER TABLE `meal`
-  MODIFY `mealid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=364;
+  MODIFY `mealid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=371;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `progresslog`
@@ -492,13 +554,13 @@ ALTER TABLE `progresslog`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `user_activities`
 --
 ALTER TABLE `user_activities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `user_preferences`
@@ -534,6 +596,12 @@ ALTER TABLE `meal`
 ALTER TABLE `mealfood`
   ADD CONSTRAINT `mealfood_ibfk_1` FOREIGN KEY (`mealid`) REFERENCES `meal` (`mealid`) ON DELETE CASCADE,
   ADD CONSTRAINT `mealfood_ibfk_2` FOREIGN KEY (`foodid`) REFERENCES `fooditem` (`foodid`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`userid`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `progresslog`

@@ -292,5 +292,20 @@ def migrate_existing_db():
         init_database()
 
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            message TEXT NOT NULL,
+            type TEXT DEFAULT 'action' CHECK(type IN ('action', 'warning', 'motivational')),
+            is_read BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (userid) ON DELETE CASCADE
+        )
+    ''')
+
+
+
+
 if __name__ == '__main__':
     migrate_existing_db()

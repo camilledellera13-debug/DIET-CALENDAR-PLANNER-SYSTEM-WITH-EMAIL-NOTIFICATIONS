@@ -9,16 +9,6 @@ import random
 from datetime import datetime, timedelta
 from notification_service import NotificationService
 
-# Load environment variables from .env file if it exists
-env_file = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(env_file):
-    with open(env_file) as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith('#') and '=' in line:
-                key, value = line.split('=', 1)
-                os.environ[key.strip()] = value.strip()
-
 app = Flask(__name__,
             template_folder=os.path.join(os.path.dirname(__file__), 'templates'),
             static_folder=os.path.join(os.path.dirname(__file__), 'static'))
@@ -420,125 +410,92 @@ def init_activities_table():
 # ============= EMAIL FUNCTIONS =============
 def send_meal_notification_email(user_email, user_name, meal_data):
     """Send email notification when a meal is logged by the user"""
-    with app.app_context():
-        try:
-            # Debug: Show configuration status
-            mail_user = app.config['MAIL_USERNAME']
-            mail_pass = app.config['MAIL_PASSWORD']
-            
-            print(f"🔍 EMAIL DEBUG - Meal Notification:")
-            print(f"   MAIL_USERNAME: {mail_user if mail_user else '(BLANK - NOT CONFIGURED)'}")
-            print(f"   MAIL_PASSWORD: {'***set***' if mail_pass else '(BLANK - NOT CONFIGURED)'}")
-            print(f"   MAIL_SERVER: {app.config.get('MAIL_SERVER')}")
-            print(f"   MAIL_PORT: {app.config.get('MAIL_PORT')}")
-            
-            if not mail_user or not mail_pass:
-                print("⚠️ Mail not configured - skipping email")
-                print("   → Set environment variables MAIL_USERNAME and MAIL_PASSWORD")
-                return False
-            
-            print("   ✅ Configuration looks good, attempting to send...")
+    try:
+        if not app.config['MAIL_USERNAME']:
+            print("⚠️ Mail not configured - skipping email")
+            return False
 
-            # Create professional HTML email
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body {{ font-family: 'Segoe UI', Arial, sans-serif; }}
-                    .container {{ max-width: 600px; margin: 0 auto; background: #f5f5f5; }}
-                    .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; }}
-                    .content {{ background: white; padding: 30px; }}
-                    .meal-info {{ background: #f9f9f9; border-left: 4px solid #667eea; padding: 15px; margin: 15px 0; }}
-                    .stats {{ display: flex; justify-content: space-around; margin: 20px 0; }}
-                    .stat-item {{ text-align: center; }}
-                    .stat-label {{ color: #666; font-size: 12px; text-transform: uppercase; }}
-                    .stat-value {{ color: #667eea; font-size: 24px; font-weight: bold; }}
-                    .footer {{ background: #f0f0f0; padding: 20px; text-align: center; color: #666; font-size: 12px; }}
-                    .emoji {{ font-size: 24px; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <div class="emoji">🍽️</div>
-                        <h1 style="margin: 10px 0;">Meal Successfully Logged!</h1>
-                        <p style="margin: 0; opacity: 0.9;">Keep up with your diet plan</p>
-                    </div>
-                    <div class="content">
-                        <h2 style="color: #333; margin-top: 0;">Hey {user_name}! 👋</h2>
-                        <p style="color: #666; line-height: 1.6;">Your meal has been successfully recorded in your Diet Calendar Planner.</p>
-                        
-                        <div class="meal-info">
-                            <strong style="color: #667eea; font-size: 16px;">{meal_data.get('meal_type', 'Meal').upper()}</strong>
-                            <p style="margin: 10px 0 0 0; color: #333;">
-                                <strong>Food:</strong> {meal_data.get('food_name', 'N/A')}
-                            </p>
-                        </div>
-
-                        <div class="stats">
-                            <div class="stat-item">
-                                <div class="stat-label">Calories</div>
-                                <div class="stat-value">{meal_data.get('calories', 0)}</div>
-                                <div style="color: #999; font-size: 12px;">kcal</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-label">Date</div>
-                                <div class="stat-value">📅</div>
-                                <div style="color: #999; font-size: 12px;">{meal_data.get('date', 'Today')}</div>
-                            </div>
-                        </div>
-
-                        <p style="background: #e3f2fd; padding: 15px; border-radius: 5px; color: #1565c0; font-size: 14px;">
-                            <strong>💡 Tip:</strong> Remember to log all meals to get accurate daily calorie tracking and personalized recommendations!
+        # Create professional HTML email
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{ font-family: 'Segoe UI', Arial, sans-serif; }}
+                .container {{ max-width: 600px; margin: 0 auto; background: #f5f5f5; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; }}
+                .content {{ background: white; padding: 30px; }}
+                .meal-info {{ background: #f9f9f9; border-left: 4px solid #667eea; padding: 15px; margin: 15px 0; }}
+                .stats {{ display: flex; justify-content: space-around; margin: 20px 0; }}
+                .stat-item {{ text-align: center; }}
+                .stat-label {{ color: #666; font-size: 12px; text-transform: uppercase; }}
+                .stat-value {{ color: #667eea; font-size: 24px; font-weight: bold; }}
+                .footer {{ background: #f0f0f0; padding: 20px; text-align: center; color: #666; font-size: 12px; }}
+                .emoji {{ font-size: 24px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="emoji">🍽️</div>
+                    <h1 style="margin: 10px 0;">Meal Successfully Logged!</h1>
+                    <p style="margin: 0; opacity: 0.9;">Keep up with your diet plan</p>
+                </div>
+                <div class="content">
+                    <h2 style="color: #333; margin-top: 0;">Hey {user_name}! 👋</h2>
+                    <p style="color: #666; line-height: 1.6;">Your meal has been successfully recorded in your Diet Calendar Planner.</p>
+                    
+                    <div class="meal-info">
+                        <strong style="color: #667eea; font-size: 16px;">{meal_data.get('meal_type', 'Meal').upper()}</strong>
+                        <p style="margin: 10px 0 0 0; color: #333;">
+                            <strong>Food:</strong> {meal_data.get('food_name', 'N/A')}
                         </p>
                     </div>
-                    <div class="footer">
-                        <p>This is an automated notification from Diet Calendar Planner System</p>
-                        <p style="margin: 5px 0;">Stay healthy, stay consistent! 💪</p>
+
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Calories</div>
+                            <div class="stat-value">{meal_data.get('calories', 0)}</div>
+                            <div style="color: #999; font-size: 12px;">kcal</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Date</div>
+                            <div class="stat-value">📅</div>
+                            <div style="color: #999; font-size: 12px;">{meal_data.get('date', 'Today')}</div>
+                        </div>
                     </div>
+
+                    <p style="background: #e3f2fd; padding: 15px; border-radius: 5px; color: #1565c0; font-size: 14px;">
+                        <strong>💡 Tip:</strong> Remember to log all meals to get accurate daily calorie tracking and personalized recommendations!
+                    </p>
                 </div>
-            </body>
-            </html>
-            """
-            msg = Message("🍽️ Meal Logged - Diet Planner", recipients=[user_email], html=html)
-            print(f"   📧 Sending email to: {user_email}")
-            mail.send(msg)
-            print(f"✅ Meal notification email sent to {user_email}")
-            return True
-        except Exception as e:
-            print(f"❌ Email error sending meal notification:")
-            print(f"   Error type: {type(e).__name__}")
-            print(f"   Error message: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
+                <div class="footer">
+                    <p>This is an automated notification from Diet Calendar Planner System</p>
+                    <p style="margin: 5px 0;">Stay healthy, stay consistent! 💪</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        msg = Message("🍽️ Meal Logged - Diet Planner", recipients=[user_email], html=html)
+        mail.send(msg)
+        print(f"✅ Meal notification email sent to {user_email}")
+        return True
+    except Exception as e:
+        print(f"❌ Email error sending meal notification: {e}")
+        return False
 
 
 def send_activity_notification_email(user_email, user_name, activity_data):
     """Send email notification when an activity/exercise is logged by the user"""
-    with app.app_context():
-        try:
-            # Debug: Show configuration status
-            mail_user = app.config['MAIL_USERNAME']
-            mail_pass = app.config['MAIL_PASSWORD']
-            
-            print(f"🔍 EMAIL DEBUG - Activity Notification:")
-            print(f"   MAIL_USERNAME: {mail_user if mail_user else '(BLANK - NOT CONFIGURED)'}")
-            print(f"   MAIL_PASSWORD: {'***set***' if mail_pass else '(BLANK - NOT CONFIGURED)'}")
-            print(f"   MAIL_SERVER: {app.config.get('MAIL_SERVER')}")
-            print(f"   MAIL_PORT: {app.config.get('MAIL_PORT')}")
-            
-            if not mail_user or not mail_pass:
-                print("⚠️ Mail not configured - skipping email")
-                print("   → Set environment variables MAIL_USERNAME and MAIL_PASSWORD")
-                return False
-            
-            print("   ✅ Configuration looks good, attempting to send...")
+    try:
+        if not app.config['MAIL_USERNAME']:
+            print("⚠️ Mail not configured - skipping email")
+            return False
 
-            emoji = activity_data.get('icon', '🏃')
-            html = f"""
+        emoji = activity_data.get('icon', '🏃')
+        html = f"""
         <!DOCTYPE html>
         <html>
         <head>
@@ -605,44 +562,43 @@ def send_activity_notification_email(user_email, user_name, activity_data):
         </body>
         </html>
         """
-            msg = Message(f"🏃 Activity Logged - Diet Planner", recipients=[user_email], html=html)
-            mail.send(msg)
-            print(f"✅ Activity notification email sent to {user_email}")
-            return True
-        except Exception as e:
-            print(f"❌ Email error sending activity notification: {e}")
-            return False
+        msg = Message(f"🏃 Activity Logged - Diet Planner", recipients=[user_email], html=html)
+        mail.send(msg)
+        print(f"✅ Activity notification email sent to {user_email}")
+        return True
+    except Exception as e:
+        print(f"❌ Email error sending activity notification: {e}")
+        return False
 
 
 def send_daily_reminder_email(user_email, user_name, scheduled_items):
     """Send daily reminder email with scheduled meals and activities for the user"""
-    with app.app_context():
-        try:
-            if not app.config['MAIL_USERNAME']:
-                print("⚠️ Mail not configured - skipping email")
-                return False
+    try:
+        if not app.config['MAIL_USERNAME']:
+            print("⚠️ Mail not configured - skipping email")
+            return False
 
-            # Create HTML content for scheduled items
-            items_html = ""
-            for item in scheduled_items:
-                if item['type'] == 'meal':
-                    items_html += f"""
-                    <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; margin: 10px 0; border-radius: 3px;">
-                        <strong style="color: #2e7d32;">🍽️ {item['meal_type'].upper()}</strong>
-                        <p style="margin: 5px 0; color: #333;">Food: {item.get('food_name', 'TBD')}</p>
-                        <p style="margin: 5px 0; color: #666; font-size: 12px;">Calories: {item.get('calories', 'N/A')} kcal</p>
-                    </div>
-                    """
-                else:  # activity
-                    items_html += f"""
-                    <div style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 12px; margin: 10px 0; border-radius: 3px;">
-                        <strong style="color: #c2185b;">{item.get('icon', '🏃')} {item['name'].upper()}</strong>
-                        <p style="margin: 5px 0; color: #333;">Duration: {item.get('duration', 'N/A')} minutes</p>
-                        <p style="margin: 5px 0; color: #666; font-size: 12px;">Planned Calories: {item.get('calories', 'N/A')} kcal</p>
-                    </div>
-                    """
+        # Create HTML content for scheduled items
+        items_html = ""
+        for item in scheduled_items:
+            if item['type'] == 'meal':
+                items_html += f"""
+                <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; margin: 10px 0; border-radius: 3px;">
+                    <strong style="color: #2e7d32;">🍽️ {item['meal_type'].upper()}</strong>
+                    <p style="margin: 5px 0; color: #333;">Food: {item.get('food_name', 'TBD')}</p>
+                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Calories: {item.get('calories', 'N/A')} kcal</p>
+                </div>
+                """
+            else:  # activity
+                items_html += f"""
+                <div style="background: #fce4ec; border-left: 4px solid #e91e63; padding: 12px; margin: 10px 0; border-radius: 3px;">
+                    <strong style="color: #c2185b;">{item.get('icon', '🏃')} {item['name'].upper()}</strong>
+                    <p style="margin: 5px 0; color: #333;">Duration: {item.get('duration', 'N/A')} minutes</p>
+                    <p style="margin: 5px 0; color: #666; font-size: 12px;">Planned Calories: {item.get('calories', 'N/A')} kcal</p>
+                </div>
+                """
 
-            html = f"""
+        html = f"""
         <!DOCTYPE html>
         <html>
         <head>
@@ -680,13 +636,13 @@ def send_daily_reminder_email(user_email, user_name, scheduled_items):
         </body>
         </html>
         """
-            msg = Message("📆 Your Daily Schedule - Diet Planner", recipients=[user_email], html=html)
-            mail.send(msg)
-            print(f"✅ Daily reminder email sent to {user_email}")
-            return True
-        except Exception as e:
-            print(f"❌ Email error sending daily reminder: {e}")
-            return False
+        msg = Message("📆 Your Daily Schedule - Diet Planner", recipients=[user_email], html=html)
+        mail.send(msg)
+        print(f"✅ Daily reminder email sent to {user_email}")
+        return True
+    except Exception as e:
+        print(f"❌ Email error sending daily reminder: {e}")
+        return False
 
 
 # ============= FLASK ROUTES =============
@@ -728,85 +684,6 @@ def test():
             'success': False,
             'message': f'MySQL connection error: {str(e)}',
             'status': 'unhealthy'
-        }), 500
-
-
-@app.route('/api/test-email/<email>')
-def test_email(email):
-    """Test email configuration by sending a test email"""
-    try:
-        print("\n" + "="*60)
-        print("🧪 TESTING EMAIL CONFIGURATION")
-        print("="*60)
-        
-        # Check configuration
-        mail_user = app.config['MAIL_USERNAME']
-        mail_pass = app.config['MAIL_PASSWORD']
-        
-        print(f"\n📋 Configuration Status:")
-        print(f"   MAIL_USERNAME: {mail_user if mail_user else '(BLANK - NOT SET)'}")
-        print(f"   MAIL_PASSWORD: {'***set***' if mail_pass else '(BLANK - NOT SET)'}")
-        print(f"   MAIL_SERVER: {app.config.get('MAIL_SERVER')}")
-        print(f"   MAIL_PORT: {app.config.get('MAIL_PORT')}")
-        print(f"   Target Email: {email}")
-        
-        if not mail_user or not mail_pass:
-            print("\n❌ FAILED: Email not configured!")
-            print("   → Set MAIL_USERNAME and MAIL_PASSWORD environment variables")
-            print("   → Command: $env:MAIL_USERNAME = 'your@gmail.com'")
-            print("   → Command: $env:MAIL_PASSWORD = 'app-password'")
-            return jsonify({
-                'success': False,
-                'message': 'Email not configured',
-                'config_status': 'MAIL_USERNAME or MAIL_PASSWORD not set'
-            }), 400
-        
-        print("\n🚀 Attempting to send test email...")
-        
-        # Send test email
-        test_html = """
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"></head>
-        <body style="font-family: Arial, sans-serif;">
-            <div style="max-width: 600px; margin: 0 auto; background: #f0f7ff; padding: 20px; border-radius: 10px;">
-                <h1 style="color: #0066cc; text-align: center;">✅ Email Configuration Test</h1>
-                <p style="color: #333; font-size: 16px;">This is a test email from your Diet Calendar Planner!</p>
-                <p style="color: #666; font-size: 14px;">If you received this email, your email notifications are properly configured and working! 🎉</p>
-                <hr style="border: none; border-top: 2px solid #0066cc; margin: 20px 0;">
-                <p style="color: #666; font-size: 12px; text-align: center;">Email Configuration: ✅ WORKING</p>
-            </div>
-        </body>
-        </html>
-        """
-        
-        msg = Message("✅ Test Email - Diet Calendar Planner Configuration", 
-                     recipients=[email], 
-                     html=test_html)
-        mail.send(msg)
-        
-        print(f"✅ SUCCESS! Test email sent to: {email}")
-        print(f"   Check your inbox (and SPAM folder) within 10 seconds")
-        print("="*60 + "\n")
-        
-        return jsonify({
-            'success': True,
-            'message': f'Test email sent successfully to {email}',
-            'config_status': 'MAIL_USERNAME and MAIL_PASSWORD are set',
-            'instructions': 'Check your email inbox and SPAM folder within 10 seconds'
-        })
-        
-    except Exception as e:
-        print(f"\n❌ ERROR: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-        print("="*60 + "\n")
-        
-        return jsonify({
-            'success': False,
-            'message': f'Failed to send test email: {str(e)}',
-            'error_type': type(e).__name__,
-            'instructions': 'Check Flask terminal for detailed error information'
         }), 500
 
 
